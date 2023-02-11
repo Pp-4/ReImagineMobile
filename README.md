@@ -4,7 +4,7 @@ Mobile version of my application for drawing fractal sets
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project is a mobile version of my previous app for drawing fractals.
 
 A few resources to get you started if this is your first Flutter project:
 
