@@ -100,6 +100,7 @@ class RootState extends State<Root> {
             },
             child: Container(//this widget contains rendered image
               color: Colors.blue,
+              width:double.infinity,
               child: Center(
                 child: FutureBuilder<ui.Image>(
                   future: Draw.makeImage(screenSize.X.toInt(), screenSize.Y.toInt(), 100, C, minScale, maxScale),
