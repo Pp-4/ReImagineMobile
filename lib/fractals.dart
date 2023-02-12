@@ -4,7 +4,7 @@ import "dart:ui";
 //ported form c#
 
 class JuliaSet {
-  //m.a.g.i.c. tm happens here
+  //Magic happens here
   Punkt C = Punkt(0, 0), min = Punkt(-2, -2), max = Punkt(2, 2);
   int resX = 0, resY = 0;
   late List<List<Punkt>> pointMatrix;
@@ -38,8 +38,8 @@ class JuliaSet {
         for (int j = 0; j < resY; j++) {
           if (depthMatrix[i][j] < 1) {
             //number different than 0 means that point had already escaped and can be omitted form calculations
-            pointMatrix[i][j] = nextPoint(pointMatrix[i][j], C);
-            depthMatrix[i][j] = finalCheck(pointMatrix[i][j]) ? escape(currentDepth, pointMatrix[i][j]): -1;
+            pointMatrix[i][j] = _nextPoint(pointMatrix[i][j], C);
+            depthMatrix[i][j] = _finalCheck(pointMatrix[i][j]) ? escape(currentDepth, pointMatrix[i][j]): -1;
             //mark point's depth of escape
           }
         }
@@ -57,17 +57,17 @@ class JuliaSet {
     int x = resX, y = resY;
     for (int i = 0; i < x; i++) {
       for (int j = 0; j < y; j++) {
-        depthMatrix[i][j] = juliaHelp(pointMatrix[i][j], iterations);
+        depthMatrix[i][j] = _juliaHelp(pointMatrix[i][j], iterations);
       }
     }
     return depthMatrix;
   }
 
-  double juliaHelp(Punkt a, int iterations) {
+  double _juliaHelp(Punkt a, int iterations) {
     //return number of iterations after which point diverges , return -1 if it doesn't
     for (int i = 0; i <= iterations; i++) {
-      if (finalCheck(a, 2)) return i.toDouble();
-      a = nextPoint(a, C);
+      if (_finalCheck(a, 2)) return i.toDouble();
+      a = _nextPoint(a, C);
     }
     return -1.0;
   }
@@ -79,10 +79,10 @@ class JuliaSet {
     if (slowMethodUsed) populateMatrix();
   }
 
-  static Punkt nextPoint(Punkt a, Punkt c) => Punkt(a.X * a.X - a.Y * a.Y + c.X,2.0 * a.X * a.Y + c.Y);
+  static Punkt _nextPoint(Punkt a, Punkt c) => Punkt(a.X * a.X - a.Y * a.Y + c.X,2.0 * a.X * a.Y + c.Y);
   //calculate point's next position
 
-  static bool finalCheck(Punkt a, [int escapeRadius = 2]) => a.X.abs() > escapeRadius || a.Y.abs() > escapeRadius;
+  static bool _finalCheck(Punkt a, [int escapeRadius = 2]) => a.X.abs() > escapeRadius || a.Y.abs() > escapeRadius;
   //check if point is outside escape radius
 
   populateMatrix() {
