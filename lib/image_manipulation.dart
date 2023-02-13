@@ -3,9 +3,9 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'fractals.dart';
-
+import 'point.dart';
 class Draw {
-  static Future<ui.Image> makeImage(
+  static Future<ui.Image> makeImage( //create image object
       int width, int height, int iteration, Punkt focus, Punkt min, Punkt max) {
     JuliaSet js2 = JuliaSet(width, height, focus, min, max);
     js2.fastIteration(iteration);

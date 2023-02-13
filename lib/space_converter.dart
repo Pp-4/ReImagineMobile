@@ -1,6 +1,6 @@
 import "dart:core";
 import 'dart:ui';
-import 'fractals.dart';
+import 'point.dart';
 
 //this class handles conversion between "pixel space" and "fractal space"
 //conversion is needed because pixel space (canvas , images etc.) goes

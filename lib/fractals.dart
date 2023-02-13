@@ -1,6 +1,6 @@
 import "dart:core";
 import "dart:math";
-import "dart:ui";
+import 'point.dart';
 //ported form c#
 
 class JuliaSet {
@@ -104,13 +104,4 @@ String printMatrix<T>(List<List<T>> matrix) {
     output += '\n';
   }
   return output;
-}
-
-class Punkt {
-  //using this instead if Point because only double type is used
-  double X, Y;
-  Punkt(this.X, this.Y);
-  Punkt.offset(Offset A):X = A.dx,Y = A.dy;
-  @override
-  String toString() => '${X.toStringAsFixed(5)},${Y.toStringAsFixed(5)} ';
 }

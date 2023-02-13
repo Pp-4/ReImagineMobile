@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import 'dart:io';
 
-import 'fractals.dart';
-import 'image_manipulation.dart';
+import 'status.dart';
+import 'point.dart';
 import 'space_converter.dart';
+import 'image_manipulation.dart';
 
 void main() => runApp(const Root());
 
@@ -15,111 +15,110 @@ class Root extends StatefulWidget {
 }
 
 class RootState extends State<Root> {
-  double initialScale = 1.0, scaleFactor = 1.0, currentScale = 1.0;
-  Punkt C = Punkt(0.3305, -0.042),
-      min = Punkt(-1.5, -1.5),
+  Punkt min = Punkt(-1.5, -1.5),
       max = Punkt(1.5, 1.5),
-      focus = Punkt(0, 0),
       minScale = Punkt(-1.5, -1.5),
       maxScale = Punkt(1.5, 1.5);
-  bool desktop = Platform.isMacOS || Platform.isLinux || Platform.isWindows;
-  bool zoomLock = false;
-
+  final status = Status(
+    false,
+    Punkt(0.3305, -0.042),
+  );
+  Icon ikona = const Icon(Icons.add_box);
 
   @override
-
   Widget build(BuildContext context) {
     return MaterialApp(
-
       debugShowCheckedModeBanner: false,
       title: 'ReImagine Mobile',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: Builder(builder: (BuildContext context) {
-
-        final screenSize = Punkt(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
-        
-        
-        
+        final screenSize = Punkt(MediaQuery.of(context).size.width,
+            MediaQuery.of(context).size.height);
         return Scaffold(
-          body: GestureDetector(
-            //this widget provides interaction with rendering function
-            onScaleStart: (details) {
-              setState(() {
-                focus = Punkt.offset(details.focalPoint);
-                zoomLock = true;
-              });
-            },
-            onScaleUpdate: (details) {
-              setState(() {
-                //zooming
-                //update temporary zoom scale
-                scaleFactor = details.scale;
-                currentScale = scaleFactor * initialScale;
-
-                if (details.pointerCount == 1) {
-                  // update C
-                  C = Conv.positionMap(Punkt(0, 0), screenSize, minScale,
-                      maxScale, details.focalPoint);
-                }
-                //panning
-                //rate of panning is influenced by zoom
-
-                //print("pointer moved by ${(details.focalPoint.dx - focus.X).toStringAsFixed(2)}x, ${(details.focalPoint.dy - focus.Y).toStringAsFixed(2)}y");
-              });
-            },
-            onScaleEnd: (details) {
-              setState(() {
-                //zooming
-                minScale.X = min.X / (currentScale / 2);
-                minScale.Y = min.Y / (currentScale / 2);
-                maxScale.X = max.X / (currentScale / 2);
-                maxScale.Y = max.Y / (currentScale / 2);
-                initialScale = currentScale;
-                zoomLock = false;
-                //panning
-                //print(details.velocity);
-                //changing C
-              });
-            },
-            onTapDown: (details) {
-              setState(() {
-                print(details.globalPosition);
-                print(details.localPosition);
-                print(Conv.positionMap(Punkt(0, 0), screenSize, minScale,
-                    maxScale, details.localPosition));
-                minScale.X *= 0.8;
-                minScale.Y *= 0.8;
-                maxScale.X *= 0.8;
-                maxScale.Y *= 0.8;
-                initialScale = currentScale * 1.25;
-              });
-            },
-            onSecondaryTap: () {
-              setState(() {
-                minScale.X *= (1 / 0.8);
-                minScale.Y *= (1 / 0.8);
-                maxScale.X *= (1 / 0.8);
-                maxScale.Y *= (1 / 0.8);
-              });
-            },
-            child: Container(
-              //this widget contains rendered image
-              color: Colors.blue,
-              width: double.infinity,
-              child: Center(
-                child: FutureBuilder<ui.Image>(
-                  future: Draw.makeImage(screenSize.X.toInt(),
-                      screenSize.Y.toInt(), 10, C, minScale, maxScale),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return RawImage(image: snapshot.data);
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
+          body: Stack(
+            children: [
+              GestureDetector(
+                //this widget provides interaction with rendering function
+                onScaleUpdate: (details) {
+                  setState(() {
+                    //zooming
+                    //update temporary zoom scale
+                    if (details.pointerCount == 2) {
+                    status.scaleFactor = details.scale;
+                    status.currentScale = status.scaleFactor * status.initialScale;
                     }
-                  },
+                    status.focus = 
+                      Conv.positionMap(
+                        Punkt(0,0),
+                        screenSize,
+                        minScale,
+                        maxScale,
+                        details.focalPoint
+                      );
+                    if (!status.zoomLock) {
+                      // update C if zoomLock is false
+                      status.C = Conv.positionMap(Punkt(0, 0), screenSize,
+                          minScale, maxScale, details.focalPoint);
+                    }
+                    //panning
+                    //rate of panning is influenced by zoom
+                  });
+                },
+                onScaleEnd: (details) {
+                  setState(() {
+                    //zooming
+                    if (details.pointerCount == 2) {
+                      minScale.X = min.X / (status.currentScale / 2);
+                      minScale.Y = min.Y / (status.currentScale / 2);
+                      maxScale.X = max.X / (status.currentScale / 2);
+                      maxScale.Y = max.Y / (status.currentScale / 2);
+                      status.initialScale = status.currentScale;
+                    }
+                    //panning
+                    //print(details.velocity);
+                  });
+                },
+                onTapDown: (details) {
+                  setState(() {
+                    minScale.multiply(0.8);
+                    maxScale.multiply(0.8);
+                    status.initialScale = status.currentScale * 1.25;
+                  });
+                },
+                onSecondaryTap: () {
+                  setState(() {
+                    minScale.multiply(1.25);
+                    maxScale.multiply(1.25);
+                    status.initialScale = status.currentScale * 0.8;
+                  });
+                },
+                child: Container(
+                  //this widget contains rendered image
+                  color: Colors.blue,
+                  width: double.infinity,
+                  child: Center(
+                    child: FutureBuilder<ui.Image>(
+                      future: Draw.makeImage(
+                          screenSize.X.toInt(),
+                          screenSize.Y.toInt(),
+                          10,
+                          status.C,
+                          minScale,
+                          maxScale),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return RawImage(image: snapshot.data);
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
+                  ),
                 ),
               ),
-            ),
+              Text(status.toString()),
+            ],
           ),
           floatingActionButton: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -129,19 +128,25 @@ class RootState extends State<Root> {
                   onPressed: () => setState(() {
                     minScale = min;
                     maxScale = max;
-                    initialScale = 1.0;
-                    scaleFactor = 1.0;
-                    currentScale = 1.0;
-                    C = Punkt(0.3305, -0.042);
+                    status.reset();
                   }),
                   tooltip: 'Reset',
-                  child: const Icon(Icons.restart_alt,color: Colors.cyan,),
+                  child: const Icon(
+                    Icons.restart_alt,
+                  ),
                 ),
                 FloatingActionButton(
                   //state button
-                  onPressed: () => setState(() => zoomLock != zoomLock),
-                  tooltip: 'Enable C change',
-                  child: const Icon(Icons.enhance_photo_translate),
+                  onPressed: () => setState(() {
+                    if (status.zoomLock) {
+                      ikona = const Icon(Icons.add_box);
+                    } else {
+                      ikona = const Icon(Icons.add_box_outlined);
+                    }
+                    status.zoomLock = !status.zoomLock;
+                  }),
+                  tooltip: status.cTooltipButton(),
+                  child: ikona,
                 ),
               ]),
         );
@@ -149,8 +154,3 @@ class RootState extends State<Root> {
     );
   }
 }
-
-zoomIn() {}
-zoomOut() {}
-pan() {}
-changeC() {}
