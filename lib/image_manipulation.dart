@@ -2,12 +2,15 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
+
 import 'fractals.dart';
 import 'point.dart';
 class Draw {
   static Future<ui.Image> makeImage( //create image object
-      int width, int height, int iteration, Punkt focus, Punkt min, Punkt max) {
-    JuliaSet js2 = JuliaSet(width, height, focus, min, max);
+      int width, int height, int iteration, Punkt focus, Punkt min, Punkt max, double resolution) {
+    resolution = (resolution > 1) ? 1 : resolution;
+    JuliaSet js2 = JuliaSet((width*resolution).toInt(), (height*resolution).toInt(), focus, min, max);
     js2.fastIteration(iteration);
 
     final c = Completer<ui.Image>();
@@ -19,6 +22,7 @@ class Draw {
       height,
       ui.PixelFormat.rgba8888,
       c.complete,
+      allowUpscaling: true
     );
 
     return c.future;

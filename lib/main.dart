@@ -101,10 +101,11 @@ class RootState extends State<Root> {
                       future: Draw.makeImage(
                           screenSize.X.toInt(),
                           screenSize.Y.toInt(),
-                          10,
+                          status.maximumDepth,
                           status.C,
                           minScale,
-                          maxScale),
+                          maxScale,
+                          status.resolution),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return RawImage(image: snapshot.data);
