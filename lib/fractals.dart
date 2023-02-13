@@ -1,5 +1,6 @@
 import "dart:core";
 import "dart:math";
+
 import 'point.dart';
 //ported form c#
 
@@ -16,7 +17,7 @@ class JuliaSet {
   int currentDepth = 0;
   //how many iterations were calculated - not used in fast iteration
 
-  JuliaSet(this.resY, this.resX, [Punkt? C, Punkt? min, Punkt? max]) {
+  JuliaSet(this.resX, this.resY, [Punkt? C, Punkt? min, Punkt? max]) {
     //resY being before resX is a feature ,not a bug , X should be still passed as the first parameter , Y being second
     if (C != null) this.C = C;
     if (max != null) this.max = max;
@@ -24,8 +25,8 @@ class JuliaSet {
     resX = resX.abs();
     resY = resY.abs();
     //matrices must be generated this way, otherwise all rows will be copy of the first one
-    pointMatrix = List.generate(resX, (_) => List.filled(resY, Punkt(0,0)));
-    depthMatrix = List.generate(resX, (_) => List.filled(resY, 0.0));
+    pointMatrix = List.generate(resY, (_) => List.filled(resX, Punkt(0,0)));
+    depthMatrix = List.generate(resY, (_) => List.filled(resX, 0.0));
     populateMatrix();
   }
 
@@ -57,7 +58,8 @@ class JuliaSet {
     int x = resX, y = resY;
     for (int i = 0; i < x; i++) {
       for (int j = 0; j < y; j++) {
-        depthMatrix[i][j] = _juliaHelp(pointMatrix[i][j], iterations);
+        if(i<50 && j < 50) depthMatrix[j][i] = -1;
+        else depthMatrix[j][i] = _juliaHelp(pointMatrix[j][i], iterations);
       }
     }
     return depthMatrix;
@@ -89,7 +91,7 @@ class JuliaSet {
     Punkt delta = Punkt((max.X-min.X)/(resX - 1),(max.Y-min.Y)/(resY - 1));
     for (int i = 0; i < resX; i++) {
       for (int j = 0; j < resY; j++) {
-        pointMatrix[i][j] = Punkt(min.X + delta.X * i, min.Y + delta.Y * j);
+        pointMatrix[j][i] = Punkt(min.X + delta.X * j, min.Y + delta.Y * i);
       }
     }
   }

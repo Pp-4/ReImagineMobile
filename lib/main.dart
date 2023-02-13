@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 
 import 'status.dart';
@@ -11,10 +12,12 @@ void main() => runApp(const Root());
 class Root extends StatefulWidget {
   const Root({super.key});
   @override
+  
   RootState createState() => RootState();
 }
 
 class RootState extends State<Root> {
+  
   Punkt min = Punkt(-1.5, -1.5),
       max = Punkt(1.5, 1.5),
       minScale = Punkt(-1.5, -1.5),
@@ -108,7 +111,15 @@ class RootState extends State<Root> {
                           status.resolution),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          return RawImage(image: snapshot.data);
+                          return Center(
+                            child: RawImage(
+                              image: snapshot.data,
+                              width: screenSize.Y,
+                              height: screenSize.X,
+                              //TODO
+                              )
+                              );
+                            
                         } else {
                           return const Center(
                               child: CircularProgressIndicator());
@@ -118,6 +129,7 @@ class RootState extends State<Root> {
                   ),
                 ),
               ),
+              SizedBox(height: MediaQuery.of(context).viewPadding.top),
               Text(status.toString()),
             ],
           ),

@@ -7,6 +7,7 @@ class Status {//wrapper object for various settings
   double initialScale = 1.0, scaleFactor = 1.0, currentScale = 1.0;
   double resolution = 1;//doesnt work right now , dont change
   Status(this.zoomLock, this.C) : _defaultC = C;
+  String addInfo = "";//variable that can be used by external function, to display some info
   @override
   String toString() {
     String outputMessage = "";
@@ -15,6 +16,7 @@ class Status {//wrapper object for various settings
     outputMessage += "Pozycja ${focus.X} Re , ${focus.Y} Im \n";
     outputMessage += "Przybliżenie ${scaleFactor}x \n";
     outputMessage += "Liczba iteracji: ${maximumDepth}";
+    outputMessage += addInfo;
     return outputMessage;
   }
 
