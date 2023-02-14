@@ -1,21 +1,56 @@
 import "dart:ui";
 import "dart:math" as math;
+
 class Punkt {
-  //using this instead if Point because only double type is used
+  //object for handling pairs of coords with basic operator overloads
   double X, Y;
   Punkt(this.X, this.Y);
-  Punkt.offset(Offset A):X = A.dx,Y = A.dy;
+  //named constructors for creating Punkt from two-value objects
+  Punkt.offset(Offset a)
+      : X = a.dx,
+        Y = a.dy;
+  Punkt.size(Size a)
+      : X = a.width,
+        Y = a.height;
   @override
-  String toString() => '${X.toStringAsFixed(5)},${Y.toStringAsFixed(5)} ';
-  void multiply(double a, {double? b}){
-      X *= a;
-      Y *= (b == null) ? a : b;
-  }
+  String toString() => '${X.toStringAsFixed(5)} Re, ${Y.toStringAsFixed(5)} Im';
   double max() => math.max(X, Y);
   double min() => math.min(X, Y);
-  Punkt operator * (var a) {
-    if(a is Punkt) { return Punkt(X * a.X, Y * a.Y);}
-    else if(a is double) { return Punkt(X*a, Y*a);}
+
+  //overloads for Punkt and double , passing anything else will return unchanged Punkt
+  Punkt operator *(var a) {
+    if (a is Punkt) {
+      return Punkt(X * a.X, Y * a.Y);
+    } else if (a is double) {
+      return Punkt(X * a, Y * a);
+    }
     return this;
-  } 
+  }
+
+  Punkt operator /(var a) {
+    if (a is Punkt) {
+      return Punkt(X / a.X, Y / a.Y);
+    } else if (a is double) {
+      return Punkt(X / a, Y / a);
+    }
+    return this;
+  }
+
+  Punkt operator +(var a) {
+    if (a is Punkt) {
+      return Punkt(X + a.X, Y + a.Y);
+    } else if (a is double) {
+      return Punkt(X + a, Y + a);
+    }
+    return this;
+  }
+
+  Punkt operator -(var a) {
+    if (a is Punkt) {
+      return Punkt(X - a.X, Y - a.Y);
+    } else if (a is double) {
+      return Punkt(X - a, Y - a);
+    }
+    return this;
+  }
 }

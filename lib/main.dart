@@ -17,8 +17,12 @@ class Root extends StatefulWidget {
 }
 
 class RootState extends State<Root> {
-  late Punkt minScale ,maxScale;
-  final status = Status(false, false, Punkt(0.3305, -0.041),100, Punkt(0, 0), Punkt(-1.5,-1.5),Punkt(1.5,1.5));
+  final stats = Status(false, false, Punkt(0.3305, -0.041),100, Punkt(0, 0),
+      Punkt(-1.5, -1.5), Punkt(1.5, 1.5));
+      /*some C's to test :
+      Punkt(0.259184, 0.001126),500
+      Punkt(0.3305, -0.041),100
+      */
   Icon ikona = const Icon(Icons.motion_photos_on);
 
   @override
@@ -28,39 +32,39 @@ class RootState extends State<Root> {
       title: 'ReImagine Mobile',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: Builder(builder: (BuildContext context) {
-        status.screenSize = Punkt(
-          MediaQuery.of(context).size.width,
-          MediaQuery.of(context).size.height);
-        minScale = status.min * status.ratio(status.screenSize) * status.currentScale;
-        maxScale = status.max * status.ratio(status.screenSize) * status.currentScale;
+        stats.screenSize = Punkt.size(MediaQuery.of(context).size);
+        final screenRatio = stats.ratio(stats.screenSize);
+        stats.currentMin = ((stats.initialMin * screenRatio-stats.currFocus) / stats.currScale) + stats.currFocus;
+        stats.currentMax = ((stats.initialMax * screenRatio-stats.currFocus) / stats.currScale) + stats.currFocus;
         return Scaffold(
           body: Stack(
             children: [
-              GestureDetector(//this widget provides interaction with rendering function
-                onScaleStart: (details) => status.initialScale = status.currentScale,
+              GestureDetector(
+                //this widget provides interaction with rendering function
+                onScaleStart: (details) {
+                  stats.initialScale = stats.currScale;
+                },
                 onScaleUpdate: (details) {
                   setState(() {
-                    status.addInfo = "Wykryto zoom, liczba palców : ${details.pointerCount}";
+                    stats.addInfo =
+                        "Wykryto zoom, liczba palców : ${details.pointerCount}";
                     //zooming
                     //update temporary zoom scale
                     if (details.pointerCount == 2) {
-                      status.scaleFactor = details.scale * status.initialScale;
-                      status.currentScale = status.scaleFactor;
+                      stats.scaleFactor = details.scale * stats.initialScale;
+                      stats.currScale = stats.scaleFactor;
                     }
-                    status.focus = Conv.positionMap(
-                        Punkt(0, 0),
-                        status.screenSize,
-                        minScale,
-                        maxScale,
-                        details.focalPoint);
-                    if (!status.zoomLock) {
+                    else {
+
+                    }
+                    if (!stats.zoomLock) {
                       // update C if zoomLock is false
-                      status.C = Conv.positionMap(
-                          Punkt(0, 0),
-                          status.screenSize,
-                          minScale,
-                          maxScale,
-                          details.focalPoint);
+                      stats.C = Conv.positionMap(
+                          Punkt(0,0),
+                          stats.screenSize,
+                          stats.currentMin,
+                          stats.currentMax,
+                          Punkt.offset(details.focalPoint));
                     }
                     //panning
                     //rate of panning is influenced by zoom
@@ -70,23 +74,35 @@ class RootState extends State<Root> {
                   setState(() {
                     //zooming
                     if (details.pointerCount == 2) {
-                      status.currentScale = status.scaleFactor;
+                      stats.currScale = stats.scaleFactor;
                     }
-                    status.addInfo = "";
+                    else {
+                      
+                    }
+                    stats.addInfo = "";
                     //panning
                     //print(details.velocity);
                   });
                 },
+                onTapDown: (details) => stats.initialFocus = Punkt.offset(details.globalPosition),
                 onTap: () {
                   setState(() {
-                    status.currentScale *= 0.8;
-                    status.addInfo = "Wykryto tapnięcie";
+                    stats.currScale *= 2;
+                    stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
+                    stats.initialFocus = stats.currFocus;
+                    stats.currentMin = Conv.zoom(stats.initialMin*screenRatio, stats.currFocus, stats.currScale);
+                    stats.currentMax = Conv.zoom(stats.initialMax*screenRatio, stats.currFocus, stats.currScale);
+                    stats.addInfo = "Wykryto tapnięcie";
                   });
                 },
                 onSecondaryTap: () {
                   setState(() {
-                    status.currentScale *= 1.25;
-                    status.addInfo = "Wykryto tapnięcie drugim przyciskiem";
+                    stats.currScale *= 0.5;
+                    stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
+                    stats.initialFocus = stats.currFocus;
+                    stats.currentMin = Conv.zoom(stats.initialMin*screenRatio, stats.currFocus, stats.currScale);
+                    stats.currentMax = Conv.zoom(stats.initialMax*screenRatio, stats.currFocus, stats.currScale);
+                    stats.addInfo = "Wykryto tapnięcie drugim przyciskiem";
                   });
                 },
                 child: Container(
@@ -96,13 +112,13 @@ class RootState extends State<Root> {
                   child: Center(
                     child: FutureBuilder<ui.Image>(
                       future: Draw.makeImage(
-                          status.screenSize.X.toInt(),
-                          status.screenSize.Y.toInt(),
-                          status.maxIter,
-                          status.C,
-                          minScale,
-                          maxScale,
-                          status.resolution),
+                          stats.screenSize.X.toInt(),
+                          stats.screenSize.Y.toInt(),
+                          stats.maxIter,
+                          stats.C,
+                          stats.currentMin,
+                          stats.currentMax,
+                          stats.resolution),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Center(
@@ -125,9 +141,10 @@ class RootState extends State<Root> {
                   padding: EdgeInsets.only(
                       top: ui.window.padding.top / ui.window.devicePixelRatio),
                   alignment: Alignment.topLeft,
-                  child: Text(status.toString()),
+                  child: Text(stats.toString(),
+                    
                 ),
-              ),
+              ))
             ],
           ),
           floatingActionButton: Column(
@@ -136,9 +153,9 @@ class RootState extends State<Root> {
                 FloatingActionButton(
                   //reset button
                   onPressed: () => setState(() {
-                    minScale = status.min;
-                    maxScale = status.max;
-                    status.reset();
+                    stats.currentMin = stats.initialMin;
+                    stats.currentMax = stats.initialMax;
+                    stats.reset();
                   }),
                   tooltip: 'Reset',
                   child: const Icon(Icons.restart_alt),
@@ -146,27 +163,29 @@ class RootState extends State<Root> {
                 FloatingActionButton(
                   //state button
                   onPressed: () => setState(() {
-                    if (status.zoomLock) {
+                    if (stats.zoomLock) {
                       ikona = const Icon(Icons.motion_photos_on);
                     } else {
                       ikona = const Icon(Icons.motion_photos_off);
                     }
-                    status.zoomLock = !status.zoomLock;
+                    stats.zoomLock = !stats.zoomLock;
                   }),
-                  tooltip: status.cTooltipButton(),
+                  tooltip: stats.cTooltipButton(),
                   child: ikona,
                 ),
-                FloatingActionButton(onPressed: () =>setState(() {
-                  status.maxIter+=log(status.maxIter).toInt();
-                }),
-                tooltip: "Zwiększ ilość iteracji",
-                child: const Icon(Icons.add),
+                FloatingActionButton(
+                  onPressed: () => setState(() {
+                    stats.maxIter += max(log(stats.maxIter).toInt(), 1);
+                  }),
+                  tooltip: "Zwiększ ilość iteracji",
+                  child: const Icon(Icons.add),
                 ),
-                FloatingActionButton(onPressed: ()=> setState(() {
-                  status.maxIter-=log(status.maxIter).toInt();
-                }),
-                tooltip: "Zmniejsz ilość iteracji",
-                child: const Icon(Icons.remove),
+                FloatingActionButton(
+                  onPressed: () => setState(() {
+                    stats.maxIter -= log(stats.maxIter).toInt();
+                  }),
+                  tooltip: "Zmniejsz ilość iteracji",
+                  child: const Icon(Icons.remove),
                 )
               ]),
         );
