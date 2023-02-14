@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 
 import 'status.dart';
@@ -17,15 +16,12 @@ class Root extends StatefulWidget {
 }
 
 class RootState extends State<Root> {
-  
+   
   Punkt min = Punkt(-1.5, -1.5),
-      max = Punkt(1.5, 1.5),
-      minScale = Punkt(-1.5, -1.5),
-      maxScale = Punkt(1.5, 1.5);
-  final status = Status(
-    false,
-    Punkt(0.3305, -0.042),
-  );
+        max = Punkt(1.5, 1.5),
+        minScale = Punkt(-1.5, -1.5),
+        maxScale = Punkt(1.5, 1.5);
+  final status = Status(false, Punkt(0.3305, -0.041),Punkt(0, 0));
   Icon ikona = const Icon(Icons.add_box);
 
   @override
@@ -35,8 +31,9 @@ class RootState extends State<Root> {
       title: 'ReImagine Mobile',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: Builder(builder: (BuildContext context) {
-        final screenSize = Punkt(MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.height);
+        status.screenSize = Punkt(
+          MediaQuery.of(context).size.width,
+          MediaQuery.of(context).size.height);
         return Scaffold(
           body: Stack(
             children: [
@@ -53,14 +50,14 @@ class RootState extends State<Root> {
                     status.focus = 
                       Conv.positionMap(
                         Punkt(0,0),
-                        screenSize,
+                        status.screenSize,
                         minScale,
                         maxScale,
                         details.focalPoint
                       );
                     if (!status.zoomLock) {
                       // update C if zoomLock is false
-                      status.C = Conv.positionMap(Punkt(0, 0), screenSize,
+                      status.C = Conv.positionMap(Punkt(0, 0), status.screenSize,
                           minScale, maxScale, details.focalPoint);
                     }
                     //panning
@@ -102,8 +99,8 @@ class RootState extends State<Root> {
                   child: Center(
                     child: FutureBuilder<ui.Image>(
                       future: Draw.makeImage(
-                          screenSize.X.toInt(),
-                          screenSize.Y.toInt(),
+                          status.screenSize.X.toInt(),
+                          status.screenSize.Y.toInt(),
                           status.maximumDepth,
                           status.C,
                           minScale,
@@ -114,9 +111,8 @@ class RootState extends State<Root> {
                           return Center(
                             child: RawImage(
                               image: snapshot.data,
-                              width: screenSize.Y,
-                              height: screenSize.X,
-                              //TODO
+                              //width: screenSize.X,
+                              //height: screenSize.Y,
                               )
                               );
                             
@@ -144,9 +140,7 @@ class RootState extends State<Root> {
                     status.reset();
                   }),
                   tooltip: 'Reset',
-                  child: const Icon(
-                    Icons.restart_alt,
-                  ),
+                  child: const Icon(Icons.restart_alt),
                 ),
                 FloatingActionButton(
                   //state button

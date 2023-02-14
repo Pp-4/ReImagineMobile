@@ -32,7 +32,6 @@ class Conv {
     // scale , where min1 ,min2 ,max1 ,2 are x,y coordinates
     //second: returns converted position
     Punkt temp = Punkt(point.dx,(point.dy-max1.Y).abs());
-    print(temp);
     return Conv.denormalizePoint(
         Conv.normalizePoint(temp, min1, max1), min2, max2);
   }

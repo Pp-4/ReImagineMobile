@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
 
 import 'fractals.dart';
 import 'point.dart';
@@ -15,15 +14,15 @@ class Draw {
 
     final c = Completer<ui.Image>();
     final pixels = Draw.serialisation(js2.depthMatrix);
-    print("$width, $height");
-    print("${js2.resX}, ${js2.resY}");
+    print("Szerokość: $width, Wysokość: $height");
     ui.decodeImageFromPixels(
       pixels.buffer.asUint8List(),
-      (height*resolution).toInt(),
       (width*resolution).toInt(),
+      (height*resolution).toInt(),
       ui.PixelFormat.rgba8888,
       c.complete,
-      allowUpscaling: false
+      targetHeight: height,
+      targetWidth: width
     );
     return c.future;
   }
@@ -46,16 +45,16 @@ class Draw {
       }
     }
     else {//reversed order of bytes in int32 -> ABGR
-
       
         for (int j = 0; j < y; j++) {
           for (int i = 0; i < x; i++) {
           double temp = input[i][j]; //R+G+B+A , A is always 255
-          output[pointer++] = (temp != -1)//check if depth is -1
-              ? (_color(temp, 0.01, 0) << 0)
-              + (_color(temp, 0.02, 1) << 8)
-              + (_color(temp, 0.04, 2) << 16)
-              + 0xff000000 : 0xffffffff;//-1 is colored white , 0 is colored black
+          output[pointer++] = (temp != -1) //check if depth is -1
+              ? (temp == 0) ? 0xff0000ff
+              : (_color(temp, 0.01, 0) << 0)
+              + (_color(temp, 0.04, 1) << 8)
+              + (_color(temp, 0.08, 2) << 16)
+              + 0xff000000 : 0xffff0000;//-1 is colored white , 0 is colored black
         }
       }
     }
