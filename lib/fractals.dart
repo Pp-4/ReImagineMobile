@@ -11,17 +11,15 @@ class JuliaSet {//Magic happens here
   //stores escape depth for each point <-this is important part that you want to do display after calling iteration function
 
   JuliaSet(this.resX, this.resY, [Punkt? C, Punkt? min, Punkt? max]) {
-    //resY being before resX is a feature ,not a bug , X should be still passed as the first parameter , Y being second
+
     if (C != null) this.C = C;
     if (max != null) this.max = max;
     if (min != null) this.min = min;
     resX = resX.abs();
     resY = resY.abs();
-     print("Szerokość: $resX, Wysokość: $resY , julia");
     //matrices must be generated this way, otherwise all rows will be copy of the first one
     pointMatrix = List.generate(resX, (_) => List.filled(resY, Punkt(0,0)));
     depthMatrix = List.generate(resX, (_) => List.filled(resY, 0.0));
-    print("Szerokość: ${pointMatrix[0].length}, Wysokość: ${pointMatrix.length} , macierz");
     _populateMatrix();
   }
 
@@ -33,7 +31,6 @@ class JuliaSet {//Magic happens here
         depthMatrix[i][j] = _juliaHelp(pointMatrix[i][j], iterations);
       }
     }
-    print(depthMatrix[0][25]);
     return depthMatrix;
   }
 

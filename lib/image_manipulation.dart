@@ -14,7 +14,6 @@ class Draw {
 
     final c = Completer<ui.Image>();
     final pixels = Draw.serialisation(js2.depthMatrix);
-    print("Szerokość: $width, Wysokość: $height");
     ui.decodeImageFromPixels(
       pixels.buffer.asUint8List(),
       (width*resolution).toInt(),
@@ -50,8 +49,7 @@ class Draw {
           for (int i = 0; i < x; i++) {
           double temp = input[i][j]; //R+G+B+A , A is always 255
           output[pointer++] = (temp != -1) //check if depth is -1
-              ? (temp == 0) ? 0xff0000ff
-              : (_color(temp, 0.01, 0) << 0)
+              ? (_color(temp, 0.01, 0) << 0)
               + (_color(temp, 0.04, 1) << 8)
               + (_color(temp, 0.08, 2) << 16)
               + 0xff000000 : 0xffff0000;//-1 is colored white , 0 is colored black
