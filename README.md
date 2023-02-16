@@ -14,4 +14,5 @@ Future plans :
  - diffrent predefined sets
  - custom sets
  - custom color sets
- - code optimisation 
+ - code optimisation
+ - image/animation export

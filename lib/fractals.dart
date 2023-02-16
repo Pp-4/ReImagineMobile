@@ -57,11 +57,13 @@ class JuliaSet {//Magic happens here
   _populateMatrix() {
     //2d linspace function
     Punkt delta = Punkt((max.X-min.X)/(resX - 1),(max.Y-min.Y)/(resY - 1));
+    //print("liczenie od: $min, do: $max, delta: $delta");
     for (int i = 0; i < resX; i++) {
       for (int j = 0; j < resY; j++) {
         pointMatrix[i][j] = Punkt(min.X + delta.X * i, min.Y + delta.Y * j);
       }
     }
+    //print("test");
   }
 }
 

@@ -2,7 +2,7 @@ import 'point.dart';
 
 class Status {
   //wrapper object for various settings and functions
-  bool zoomLock, dragLock;
+  bool zoomLock, dragLock,showInfo;
   Punkt C, initialFocus = Punkt(0, 0), currFocus = Punkt(0, 0);
   final Punkt _defaultC;
   Punkt initialMin, initialMax, currentMin, currentMax;
@@ -22,24 +22,26 @@ class Status {
       _defaultC = C,
       _defaultIter = maxIter,
       currentMin = initialMin,
-      currentMax = initialMax;
+      currentMax = initialMax,
+      showInfo = true;
   String addInfo = "";
   //variable that can be used by external function, to display some info
   @override
   String toString() {
     String outputMessage = "";
+    if(showInfo){
     outputMessage += "Zmiana C ${zoomLock ? "nieaktywna" : "aktywna"} \n";
     outputMessage += "Współrzedne C $C\n";
     outputMessage += "Pozycja $currFocus\n";
     outputMessage += "Przybliżenie ${currScale}x \n";
-    //outputMessage += "Liczba iteracji: $maxIter\n";
+    outputMessage += "Liczba iteracji: $maxIter\n";
     outputMessage += "Min: $currentMin\nMax: $currentMax\n";
     //outputMessage += "initialScale $initialScale\nscaleFactor $scaleFactor\ncurrentScale $currentScale\n";
     //outputMessage += 'Rozmiar paska: ${window.padding.top}\n';
     outputMessage += addInfo;
-    return outputMessage;
   }
-
+  return outputMessage;
+  }
   reset() {
     C = _defaultC;
     maxIter = _defaultIter;
@@ -52,6 +54,7 @@ class Status {
   }
 
   cTooltipButton() => zoomLock ? "Włącz zmianę C" : "Wyłącz zmianę C";
+  infoTooltipButton() => showInfo ? "Ukryj szczegóły" : "Pokaż szczegóły";
 
   Punkt ratio(Punkt a) {
     //returns screen ratio , useful for keeping 1:1 ratio of fractal image

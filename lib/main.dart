@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+import 'dart:math';
 
-import 'status.dart';
 import 'point.dart';
+import 'status.dart';
 import 'space_converter.dart';
 import 'image_manipulation.dart';
 
@@ -24,6 +23,8 @@ class RootState extends State<Root> {
       Punkt(0.3305, -0.041),100
       */
   Icon ikona = const Icon(Icons.motion_photos_on);
+  Icon ikona2 = const Icon(Icons.info);
+  Offset? zoomPointInPixels;
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +49,15 @@ class RootState extends State<Root> {
                   setState(() {
                     stats.addInfo =
                         "Wykryto zoom, liczba palców : ${details.pointerCount}";
+                      
                     //zooming
                     //update temporary zoom scale
                     if (details.pointerCount == 2) {
                       stats.scaleFactor = details.scale * stats.initialScale;
                       stats.currScale = stats.scaleFactor;
-                    }
-                    else {
-
+                      zoomPointInPixels = details.localFocalPoint;
+                      stats.initialFocus = Punkt.offset(zoomPointInPixels!);
+                      stats.initialFocus.Y = (stats.initialFocus.Y-stats.screenSize.Y).abs();
                     }
                     if (!stats.zoomLock) {
                       // update C if zoomLock is false
@@ -72,26 +74,27 @@ class RootState extends State<Root> {
                 },
                 onScaleEnd: (details) {
                   setState(() {
-                    //zooming
-                    if (details.pointerCount == 2) {
-                      stats.currScale = stats.scaleFactor;
-                    }
-                    else {
-                      
-                    }
                     stats.addInfo = "";
-                    //panning
-                    //print(details.velocity);
+                    if(zoomPointInPixels != null){
+                      //print("zoom w punkcie $zoomPointInPixels");
+                    //stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
+                    //stats.initialFocus = stats.currFocus;
+                    }
                   });
                 },
-                onTapDown: (details) => stats.initialFocus = Punkt.offset(details.globalPosition),
+                onTapDown: (details) {
+                  stats.initialFocus = Punkt.offset(details.globalPosition);
+                  stats.initialFocus.Y = (stats.initialFocus.Y-stats.screenSize.Y).abs();
+                },
+                onSecondaryTapDown: (details) {
+                  stats.initialFocus = Punkt.offset(details.globalPosition);
+                  stats.initialFocus.Y = (stats.initialFocus.Y-stats.screenSize.Y).abs();
+                },
                 onTap: () {
                   setState(() {
                     stats.currScale *= 2;
                     stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
                     stats.initialFocus = stats.currFocus;
-                    stats.currentMin = Conv.zoom(stats.initialMin*screenRatio, stats.currFocus, stats.currScale);
-                    stats.currentMax = Conv.zoom(stats.initialMax*screenRatio, stats.currFocus, stats.currScale);
                     stats.addInfo = "Wykryto tapnięcie";
                   });
                 },
@@ -100,8 +103,6 @@ class RootState extends State<Root> {
                     stats.currScale *= 0.5;
                     stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
                     stats.initialFocus = stats.currFocus;
-                    stats.currentMin = Conv.zoom(stats.initialMin*screenRatio, stats.currFocus, stats.currScale);
-                    stats.currentMax = Conv.zoom(stats.initialMax*screenRatio, stats.currFocus, stats.currScale);
                     stats.addInfo = "Wykryto tapnięcie drugim przyciskiem";
                   });
                 },
@@ -142,6 +143,9 @@ class RootState extends State<Root> {
                       top: ui.window.padding.top / ui.window.devicePixelRatio),
                   alignment: Alignment.topLeft,
                   child: Text(stats.toString(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
                     
                 ),
               ))
@@ -150,6 +154,20 @@ class RootState extends State<Root> {
           floatingActionButton: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                SizedBox(height: ui.window.padding.top / ui.window.devicePixelRatio,width:10),
+                FloatingActionButton(
+                  onPressed: () => setState(() {
+                    if(stats.showInfo) {
+                      ikona2 = const Icon(Icons.info_outline);
+                    }
+                    else {
+                      ikona2 = const Icon(Icons.info);
+                    }
+                    stats.showInfo =! stats.showInfo;
+                }),
+                tooltip: stats.infoTooltipButton(),
+                child: ikona2,
+                ),
                 FloatingActionButton(
                   //reset button
                   onPressed: () => setState(() {

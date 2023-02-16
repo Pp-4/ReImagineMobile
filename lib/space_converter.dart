@@ -29,13 +29,11 @@ class Conv {
 
   static Punkt zoom(Punkt initialPosition, Punkt pointOfZoom,double scale) {
     Punkt output = initialPosition;
-    print(output);
-    print(scale);
-    print(pointOfZoom);
+    //print("Punkt początkowy: $output, Skala: $scale, Mijece przybliżenia: $pointOfZoom");
     output -= pointOfZoom; //translation
     output /= scale;       //zooming
     output += pointOfZoom; //translation
-    print("wynik $output\n");
+    //print("Punkt wynikowy: $output\n");
     return output;
   }
 }

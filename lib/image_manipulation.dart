@@ -10,6 +10,7 @@ class Draw {
       int width, int height, int iteration, Punkt focus, Punkt min, Punkt max, double resolution) {
     resolution = (resolution > 1) ? 1 : resolution;
     JuliaSet js2 = JuliaSet((width*resolution).toInt(), (height*resolution).toInt(), focus, min, max);
+    //print("rysowanie od $min, do $max");
     js2.fastIteration(iteration);
 
     final c = Completer<ui.Image>();
