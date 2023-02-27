@@ -7,8 +7,8 @@ Mobile version of my app for drawing fractal sets
 This project is a mobile version of my previous app for drawing fractals.
 Work in Progress.
 Supported platforms :
- - Android
- - Windows
+ - Android,Windows
+ 
 Future plans : 
  - more settings
  - diffrent predefined sets
