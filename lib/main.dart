@@ -49,7 +49,6 @@ class RootState extends State<Root> {
                   setState(() {
                     stats.addInfo =
                         "Wykryto zoom, liczba palców : ${details.pointerCount}";
-                      
                     //zooming
                     //update temporary zoom scale
                     if (details.pointerCount == 2) {
