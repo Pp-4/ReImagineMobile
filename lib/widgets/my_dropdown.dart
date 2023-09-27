@@ -31,7 +31,9 @@ class _MyDropdownState extends State<MyDropdown> {
         crossAxisAlignment: CrossAxisAlignment.start,
           children: [
         Text(widget.title),
+        SizedBox(height: 5,),
         DropdownMenu<String>(
+          width: 250,
           initialSelection: widget.list.first,
           onSelected: (String? value) {
             setState(() {
