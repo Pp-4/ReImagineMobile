@@ -2,40 +2,40 @@ import 'point.dart';
 
 class Status {
   //wrapper object for various settings and functions
-  bool zoomLock, dragLock,showInfo;
-  Punkt C, initialFocus = Punkt(0, 0), currFocus = Punkt(0, 0);
-  final Punkt _defaultC;
-  Punkt initialMin, initialMax, currentMin, currentMax;
-  Punkt screenSize;
-  int maxIter;
-  final int _defaultIter;
-  double initialScale = 1.0, scaleFactor = 1.0, currScale = 1.0;
-  double resolution = 1; //doesnt work right now , dont change
+  bool blokadaZmianyC, dragLock,pokazInfo;
+  Punkt C;//, fokusPocz = Punkt(0, 0), fokus = Punkt(0, 0);
+  final Punkt _poczC;
+  Zakres kamera,kameraPocz,rozmiarOkna;
+  Mysz mysz;
+  int maxLiczbaIteracji;
+  final int maxLiczbaIteracjiPocz;
+  double skalaPocz = 1.0, tempoSkali = 1.0, skala = 1.0;
+  double rozdzielczosc = 1; //doesnt work right now , dont change
+  double sl1 = 0.01,sl2 = 0.02,sl3 = 0.04;
   Status(
-    this.zoomLock,
+    this.blokadaZmianyC,
     this.dragLock,
     this.C,
-    this.maxIter,
-    this.screenSize,
-    this.initialMin,
-    this.initialMax) :
-      _defaultC = C,
-      _defaultIter = maxIter,
-      currentMin = initialMin,
-      currentMax = initialMax,
-      showInfo = true;
+    this.maxLiczbaIteracji,
+    this.rozmiarOkna,
+    this.kameraPocz) :
+      _poczC = C,
+      maxLiczbaIteracjiPocz = maxLiczbaIteracji,
+      kamera = kameraPocz,
+      mysz = Mysz(Punkt(0,0),Punkt(0,0),Punkt(0,0)),
+      pokazInfo = true;
   String addInfo = "";
   //variable that can be used by external function, to display some info
   @override
   String toString() {
     String outputMessage = "";
-    if(showInfo){
-    outputMessage += "Zmiana C ${zoomLock ? "nieaktywna" : "aktywna"} \n";
+    if(pokazInfo){
+    outputMessage += "Zmiana C ${blokadaZmianyC ? "nieaktywna" : "aktywna"} \n";
     outputMessage += "Współrzedne C $C\n";
-    outputMessage += "Pozycja $currFocus\n";
-    outputMessage += "Przybliżenie ${currScale}x \n";
-    outputMessage += "Liczba iteracji: $maxIter\n";
-    outputMessage += "Min: $currentMin\nMax: $currentMax\n";
+    outputMessage += "Pozycja ${(kamera.min+kamera.max)/2}\n";
+    outputMessage += "Przybliżenie ${skala}x \n";
+    outputMessage += "Liczba iteracji: $maxLiczbaIteracji\n";
+    outputMessage += "Min: ${kamera.min}\nMax: ${kamera.max}\n";
     //outputMessage += "initialScale $initialScale\nscaleFactor $scaleFactor\ncurrentScale $currentScale\n";
     //outputMessage += 'Rozmiar paska: ${window.padding.top}\n';
     outputMessage += addInfo;
@@ -43,27 +43,15 @@ class Status {
   return outputMessage;
   }
   reset() {
-    C = _defaultC;
-    maxIter = _defaultIter;
-    initialScale = 1.0;
-    currScale = 1.0;
-    initialFocus = Punkt(0, 0);
-    currFocus = Punkt(0, 0);
-    currentMin = initialMin;
-    currentMax = initialMax;
+    C = _poczC;
+    maxLiczbaIteracji = maxLiczbaIteracjiPocz;
+    skalaPocz = 1.0;
+    skala = 1.0;
+    kamera = kameraPocz;
+    mysz = Mysz(Punkt(0,0),Punkt(0,0),Punkt(0,0));
+    addInfo = "";
   }
 
-  cTooltipButton() => zoomLock ? "Włącz zmianę C" : "Wyłącz zmianę C";
-  infoTooltipButton() => showInfo ? "Ukryj szczegóły" : "Pokaż szczegóły";
-
-  Punkt ratio(Punkt a) {
-    //returns screen ratio , useful for keeping 1:1 ratio of fractal image
-    Punkt output = Punkt(1, 1);
-    if (a.X > a.Y) {
-      output.X = a.X / a.Y;
-    } else {
-      output.Y = a.Y / a.X;
-    }
-    return output;
-  }
+  cTooltipButton() => blokadaZmianyC ? "Włącz zmianę C" : "Wyłącz zmianę C";
+  infoTooltipButton() => pokazInfo ? "Ukryj szczegóły" : "Pokaż szczegóły";
 }
