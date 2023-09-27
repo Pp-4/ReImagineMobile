@@ -6,15 +6,17 @@ class JuliaSet {//Magic happens here
   
   Punkt C = Punkt(0, 0), min = Punkt(-2, -2), max = Punkt(2, 2);
   int resX = 0, resY = 0;
+  int typRowniania = 0;//0 - julia, 1 - mandelbrott, 2 - phoenix, 3 - burning ship
   late List<List<Punkt>> pointMatrix;//stores iterated coordinates
   late List<List<double>> depthMatrix;
   //stores escape depth for each point <-this is important part that you want to do display after calling iteration function
 
-  JuliaSet(this.resX, this.resY, [Punkt? C, Punkt? min, Punkt? max]) {
+  JuliaSet(this.resX, this.resY, [Punkt? C, Punkt? min, Punkt? max,int? typRowniania]) {
 
     if (C != null) this.C = C;
     if (max != null) this.max = max;
     if (min != null) this.min = min;
+    if (typRowniania != null) this.typRowniania = typRowniania;
     resX = resX.abs();
     resY = resY.abs();
     //matrices must be generated this way, otherwise all rows will be copy of the first one

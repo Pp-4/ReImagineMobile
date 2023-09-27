@@ -12,6 +12,7 @@ class Status {
   double skalaPocz = 1.0, tempoSkali = 1.0, skala = 1.0;
   double rozdzielczosc = 1; //doesnt work right now , dont change
   static Kolor kolory = Kolor(0.02,0.04, 0.08);
+  static int rownanie = 0;
   Status(
     this.blokadaZmianyC,
     this.dragLock,

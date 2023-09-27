@@ -133,7 +133,8 @@ class RootState extends State<Root> {
                           stats.kamera.min*AffineTransformations.ratio2(stats.rozmiarOkna.max)/2,
                           stats.kamera.max*AffineTransformations.ratio2(stats.rozmiarOkna.max)/2,
                           stats.rozdzielczosc,
-                          Status.kolory),
+                          Status.kolory,
+                          Status.rownanie),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Center(

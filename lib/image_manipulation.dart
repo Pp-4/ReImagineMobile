@@ -7,9 +7,9 @@ import 'fractals.dart';
 import 'point.dart';
 class Draw {
   static Future<ui.Image> makeImage( //create image object
-      int width, int height, int iteration, Punkt focus, Punkt min, Punkt max, double resolution,Kolor gradient) {
+      int width, int height, int iteration, Punkt focus, Punkt min, Punkt max, double resolution,Kolor gradient,int rownanie) {
     resolution = (resolution > 1) ? 1 : resolution;
-    JuliaSet js2 = JuliaSet((width*resolution).toInt(), (height*resolution).toInt(), focus, min, max);
+    JuliaSet js2 = JuliaSet((width*resolution).toInt(), (height*resolution).toInt(), focus, min, max,rownanie);
     //print("rysowanie od $min, do $max");
     js2.fastIteration(iteration);
 
