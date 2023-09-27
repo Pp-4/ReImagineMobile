@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reimagine_mobile/widgets/options_bar.dart';
 import 'dart:ui' as ui;
 import 'dart:math';
 
@@ -26,6 +27,13 @@ class RootState extends State<Root> {
   Icon ikona2 = const Icon(Icons.info);
   Offset? zoomPointInPixels;
 
+  AppBar _buildAppBar(){
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,6 +46,10 @@ class RootState extends State<Root> {
         stats.currentMin = ((stats.initialMin * screenRatio-stats.currFocus) / stats.currScale) + stats.currFocus;
         stats.currentMax = ((stats.initialMax * screenRatio-stats.currFocus) / stats.currScale) + stats.currFocus;
         return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar:_buildAppBar(),
+
+          drawer: const OptionsBar(),
           body: Stack(
             children: [
               GestureDetector(
