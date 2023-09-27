@@ -11,7 +11,7 @@ class Status {
   final int maxLiczbaIteracjiPocz;
   double skalaPocz = 1.0, tempoSkali = 1.0, skala = 1.0;
   double rozdzielczosc = 1; //doesnt work right now , dont change
-  double sl1 = 0.01,sl2 = 0.02,sl3 = 0.04;
+  static Kolor kolory = Kolor(0.02,0.04, 0.08);
   Status(
     this.blokadaZmianyC,
     this.dragLock,

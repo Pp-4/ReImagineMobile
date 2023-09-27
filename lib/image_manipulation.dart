@@ -7,14 +7,14 @@ import 'fractals.dart';
 import 'point.dart';
 class Draw {
   static Future<ui.Image> makeImage( //create image object
-      int width, int height, int iteration, Punkt focus, Punkt min, Punkt max, double resolution,(double,double,double) gradient) {
+      int width, int height, int iteration, Punkt focus, Punkt min, Punkt max, double resolution,Kolor gradient) {
     resolution = (resolution > 1) ? 1 : resolution;
     JuliaSet js2 = JuliaSet((width*resolution).toInt(), (height*resolution).toInt(), focus, min, max);
     //print("rysowanie od $min, do $max");
     js2.fastIteration(iteration);
 
     final c = Completer<ui.Image>();
-    final pixels = Draw.serialisation(js2.depthMatrix,(gradient.$1,gradient.$2,gradient.$3));
+    final pixels = Draw.serialisation(js2.depthMatrix,gradient);
     ui.decodeImageFromPixels(
       pixels.buffer.asUint8List(),
       (width*resolution).toInt(),
@@ -27,7 +27,7 @@ class Draw {
     return c.future;
   }
 
-  static Int32List serialisation(List<List<double>> input, (double,double,double) gradient) {
+  static Int32List serialisation(List<List<double>> input, Kolor gradient) {
     //convert depth matrix to RGBA int32 list ,using continuous function
     int x = input.length, y = input[0].length,pointer = 0;
     Int32List output = Int32List(x * y); //height * length ,4 channels
@@ -37,9 +37,9 @@ class Draw {
        for (int j = 0; j < y; j++) {
           double temp = input[i][j]; //R+G+B+A , A is always 255
           output[pointer++] = (temp != -1)//check if depth is -1
-              ? (_color(temp, gradient.$1, 0) << 24)
-              + (_color(temp, gradient.$2, 1) << 16)
-              + (_color(temp, gradient.$3, 2) << 8)
+              ? (_color(temp, gradient.kolor1, 0) << 24)
+              + (_color(temp, gradient.kolor2, 1) << 16)
+              + (_color(temp, gradient.kolor3, 2) << 8)
               + 255 : (temp == 0) ? ~0 :0;//-1 is colored white , 0 is colored black
         }
       }
@@ -50,9 +50,9 @@ class Draw {
           for (int i = 0; i < x; i++) {
           double temp = input[i][j]; //R+G+B+A , A is always 255
           output[pointer++] = (temp != -1) //check if depth is -1
-              ? (_color(temp, gradient.$1, 0) << 0)
-              + (_color(temp, gradient.$2, 1) << 8)
-              + (_color(temp, gradient.$3, 2) << 16)
+              ? (_color(temp, gradient.kolor1, 0) << 0)
+              + (_color(temp, gradient.kolor2, 1) << 8)
+              + (_color(temp, gradient.kolor3, 2) << 16)
               + 0xff000000 : 0xffff0000;//-1 is colored white , 0 is colored black
         }
       }

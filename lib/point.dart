@@ -64,3 +64,7 @@ class Mysz {
   Punkt pozycjaFizyczna,pozycjaLogObecna,pozycjaLogPoprzednia;
   Mysz(this.pozycjaFizyczna,this.pozycjaLogObecna,this.pozycjaLogPoprzednia);
 }
+class Kolor {
+  double kolor1,kolor2,kolor3;
+  Kolor(this.kolor1,this.kolor2,this.kolor3);
+}

@@ -24,7 +24,7 @@ class RootState extends State<Root> {
       */
   Icon ikona = const Icon(Icons.motion_photos_on);
   Icon ikona2 = const Icon(Icons.info);
-
+  OptionsBar optionsbar = OptionsBar();
   AppBar _buildAppBar(){
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -39,7 +39,7 @@ class RootState extends State<Root> {
       title: 'ReImagine Mobile',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: Builder(builder: (BuildContext context) {
-
+        optionsbar.kolor = Status.kolory;
         stats.rozmiarOkna.max = Punkt.size(MediaQuery.of(context).size);
         //stats.addInfo = AffineTransformations.ratio2(stats.rozmiarOkna.max).toString();
         //stats.kamera = AffineTransformations.ratio(stats.kameraPocz, stats.rozmiarOkna.min - stats.rozmiarOkna.max);
@@ -50,7 +50,7 @@ class RootState extends State<Root> {
           extendBodyBehindAppBar: true,
           appBar:_buildAppBar(),
 
-          drawer: const OptionsBar(),
+          drawer: optionsbar,
           body: Stack(
             children: [
               GestureDetector(
@@ -133,7 +133,7 @@ class RootState extends State<Root> {
                           stats.kamera.min*AffineTransformations.ratio2(stats.rozmiarOkna.max)/2,
                           stats.kamera.max*AffineTransformations.ratio2(stats.rozmiarOkna.max)/2,
                           stats.rozdzielczosc,
-                          (stats.sl1,stats.sl2,stats.sl3)),
+                          Status.kolory),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Center(

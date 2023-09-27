@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:reimagine_mobile/point.dart';
 import 'package:reimagine_mobile/widgets/my_dropdown.dart';
-
+import '/point.dart';
 
 class OptionsBar extends StatefulWidget {
   OptionsBar({Key? key}) : super(key: key);
 
   @override
   State<OptionsBar> createState() => _OptionsBarState();
-  var currentSliderOneValue = 0.2;
-  var currentSliderTwoValue = 0.6;
-  var currentSliderThreeValue = 1.0;
+  Kolor kolor = Kolor(0, 0, 0);
   MyDropdown dropdown = MyDropdown(title:"Wybór 1",list: ["Opcja 1","Opcja 2","Opcja 3","Opcja 4"]);
 }
 
@@ -18,7 +17,6 @@ class _OptionsBarState extends State<OptionsBar> {
 
   @override
   Widget build(BuildContext context) {
-
 
     getSelectedSet(){
       return widget.dropdown.currentValue;
@@ -51,12 +49,12 @@ class _OptionsBarState extends State<OptionsBar> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                Text("Opcja 1:  " + double.parse((widget.currentSliderOneValue).toStringAsFixed(2)).toString(),),
-                Slider(value: widget.currentSliderOneValue , onChanged: (double value){
+                Text("Opcja 1:  " + double.parse((widget.kolor.kolor1).toStringAsFixed(2)).toString(),),
+                Slider(value: widget.kolor.kolor1 , onChanged: (double value){
                   setState(() {
-                    widget.currentSliderOneValue = value;
+                    widget.kolor.kolor1 = value;
                   });
-                },min: 0,max: 1,label: "Opcja 1: " + widget.currentSliderOneValue.toString(),),
+                },min: 0,max: 1,label: "Opcja 1: " + widget.kolor.kolor1.toString(),),
               ]),
             ),
             Padding(
@@ -64,12 +62,12 @@ class _OptionsBarState extends State<OptionsBar> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Opcja 1:  " + double.parse((widget.currentSliderTwoValue).toStringAsFixed(2)).toString(),),
-                    Slider(value: widget.currentSliderTwoValue , onChanged: (double value){
+                    Text("Opcja 1:  " + double.parse((widget.kolor.kolor2).toStringAsFixed(2)).toString(),),
+                    Slider(value: widget.kolor.kolor2 , onChanged: (double value){
                       setState(() {
-                        widget.currentSliderTwoValue = value;
+                        widget.kolor.kolor2 = value;
                       });
-                    },min: 0,max: 1,label: "Opcja 1: " + widget.currentSliderTwoValue.toString(),),
+                    },min: 0,max: 1,label: "Opcja 1: " + widget.kolor.kolor2.toString(),),
                   ]),
             ),
 
@@ -78,12 +76,12 @@ class _OptionsBarState extends State<OptionsBar> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Opcja 1:  " + double.parse((widget.currentSliderThreeValue).toStringAsFixed(2)).toString(),),
-                    Slider(value: widget.currentSliderThreeValue , onChanged: (double value){
+                    Text("Opcja 1:  " + double.parse((widget.kolor.kolor3).toStringAsFixed(2)).toString(),),
+                    Slider(value: widget.kolor.kolor3 , onChanged: (double value){
                       setState(() {
-                        widget.currentSliderThreeValue = value;
+                        widget.kolor.kolor3 = value;
                       });
-                    },min: 0,max: 1,label: "Opcja 1: " + widget.currentSliderThreeValue.toString(),),
+                    },min: 0,max: 1,label: "Opcja 1: " + widget.kolor.kolor3.toString(),),
                   ]),
             ),
 
