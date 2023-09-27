@@ -5,7 +5,7 @@ import 'dart:math';
 
 import 'point.dart';
 import 'status.dart';
-import 'space_converter.dart';
+import 'aff_trans.dart';
 import 'image_manipulation.dart';
 
 void main() => runApp(const Root());
@@ -17,15 +17,13 @@ class Root extends StatefulWidget {
 }
 
 class RootState extends State<Root> {
-  final stats = Status(false, false, Punkt(0.3305, -0.041),100, Punkt(0, 0),
-      Punkt(-1.5, -1.5), Punkt(1.5, 1.5));
+  final stats = Status(false, false, Punkt(0.3305, -0.041),100, Zakres(Punkt(0,0), Punkt(0,0)), Zakres(Punkt(-1.5, -1.5), Punkt(1.5, 1.5)));
       /*some C's to test :
       Punkt(0.259184, 0.001126),500
       Punkt(0.3305, -0.041),100
       */
   Icon ikona = const Icon(Icons.motion_photos_on);
   Icon ikona2 = const Icon(Icons.info);
-  Offset? zoomPointInPixels;
 
   AppBar _buildAppBar(){
     return AppBar(
@@ -41,10 +39,15 @@ class RootState extends State<Root> {
       title: 'ReImagine Mobile',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: Builder(builder: (BuildContext context) {
-        stats.screenSize = Punkt.size(MediaQuery.of(context).size);
-        final screenRatio = stats.ratio(stats.screenSize);
-        stats.currentMin = ((stats.initialMin * screenRatio-stats.currFocus) / stats.currScale) + stats.currFocus;
-        stats.currentMax = ((stats.initialMax * screenRatio-stats.currFocus) / stats.currScale) + stats.currFocus;
+
+
+        stats.rozmiarOkna.max = Punkt.size(MediaQuery.of(context).size);
+        //final screenRatio = AffineTransformations.ratio2(stats.rozmiarOkna);
+        stats.kamera = AffineTransformations.ratio(stats.kameraPocz, stats.rozmiarOkna.min - stats.rozmiarOkna.max);
+        stats.addInfo =  stats.rozmiarOkna.max.toString();
+        //stats.kameraMax = ((stats.kameraMaxPocz * screenRatio-stats.fokus) / stats.skala) + stats.fokus;
+
+
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar:_buildAppBar(),
@@ -54,31 +57,36 @@ class RootState extends State<Root> {
             children: [
               GestureDetector(
                 //this widget provides interaction with rendering function
-                onScaleStart: (details) {
-                  stats.initialScale = stats.currScale;
+                onScaleStart: (details) {//wykrycie zoomowania palcami , ustalenie pozycji i skali
+                  stats.skalaPocz = stats.skala;
+                  stats.mysz.pozycjaFizyczna = Punkt.offset(details.focalPoint);
+                  stats.mysz.pozycjaLogPoprzednia = stats.mysz.pozycjaLogObecna;
+                  stats.mysz.pozycjaLogObecna = AffineTransformations.positionMap(stats.mysz.pozycjaFizyczna, stats.rozmiarOkna, stats.kamera);
                 },
                 onScaleUpdate: (details) {
                   setState(() {
-                    stats.addInfo =
-                        "Wykryto zoom, liczba palców : ${details.pointerCount}";
+                    stats.addInfo = "Wykryto zoom, liczba palców : ${details.pointerCount}";
                     //zooming
                     //update temporary zoom scale
-                    if (details.pointerCount == 2) {
-                      stats.scaleFactor = details.scale * stats.initialScale;
-                      stats.currScale = stats.scaleFactor;
-                      zoomPointInPixels = details.localFocalPoint;
-                      stats.initialFocus = Punkt.offset(zoomPointInPixels!);
-                      stats.initialFocus.Y = (stats.initialFocus.Y-stats.screenSize.Y).abs();
+                    if (details.pointerCount == 2) {//
+                      stats.tempoSkali = details.scale * stats.skalaPocz;
+                      stats.skala = stats.tempoSkali;
+                      stats.mysz.pozycjaFizyczna = Punkt.offset(details.focalPoint);
+                      stats.mysz.pozycjaLogPoprzednia = stats.mysz.pozycjaLogObecna;
+                      stats.mysz.pozycjaLogObecna = AffineTransformations.positionMap(stats.mysz.pozycjaFizyczna, stats.rozmiarOkna, stats.kamera);
+                      stats.kamera = AffineTransformations.zoom(stats.skala, stats.kamera, stats.mysz.pozycjaLogObecna);
                     }
-                    if (!stats.zoomLock) {
-                      // update C if zoomLock is false
-                      stats.C = Conv.positionMap(
-                          Punkt(0,0),
-                          stats.screenSize,
-                          stats.currentMin,
-                          stats.currentMax,
-                          Punkt.offset(details.focalPoint));
+                    if (details.pointerCount == 1) {
+                    if (!stats.blokadaZmianyC) {// update C if zoomLock is false
+                      stats.C = AffineTransformations.positionMap(Punkt.offset(details.focalPoint),stats.rozmiarOkna,stats.kamera);
                     }
+                    else {
+                      (Zakres,Mysz) wynik = AffineTransformations.pan(stats.kamera, stats.mysz);
+                      stats.kamera = wynik.$1;
+                      stats.mysz = wynik.$2;
+                    }
+                    }
+
                     //panning
                     //rate of panning is influenced by zoom
                   });
@@ -86,7 +94,7 @@ class RootState extends State<Root> {
                 onScaleEnd: (details) {
                   setState(() {
                     stats.addInfo = "";
-                    if(zoomPointInPixels != null){
+                    if(stats.mysz.pozycjaFizyczna != Punkt(0,0)){
                       //print("zoom w punkcie $zoomPointInPixels");
                     //stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
                     //stats.initialFocus = stats.currFocus;
@@ -94,26 +102,22 @@ class RootState extends State<Root> {
                   });
                 },
                 onTapDown: (details) {
-                  stats.initialFocus = Punkt.offset(details.globalPosition);
-                  stats.initialFocus.Y = (stats.initialFocus.Y-stats.screenSize.Y).abs();
-                },
-                onSecondaryTapDown: (details) {
-                  stats.initialFocus = Punkt.offset(details.globalPosition);
-                  stats.initialFocus.Y = (stats.initialFocus.Y-stats.screenSize.Y).abs();
+                  stats.mysz.pozycjaFizyczna = Punkt.offset(details.globalPosition);
+                  stats.mysz.pozycjaFizyczna.Y = (stats.mysz.pozycjaFizyczna.Y-stats.rozmiarOkna.max.Y).abs();
+                  stats.mysz.pozycjaLogPoprzednia = stats.mysz.pozycjaLogObecna;
+                  stats.mysz.pozycjaLogObecna = AffineTransformations.positionMap(stats.mysz.pozycjaFizyczna, stats.rozmiarOkna, stats.kamera);
                 },
                 onTap: () {
                   setState(() {
-                    stats.currScale *= 2;
-                    stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
-                    stats.initialFocus = stats.currFocus;
+                    stats.skala *= 2;
+                    stats.kamera = AffineTransformations.zoom(stats.skala, stats.kamera, stats.mysz.pozycjaLogObecna);
                     stats.addInfo = "Wykryto tapnięcie";
                   });
                 },
                 onSecondaryTap: () {
                   setState(() {
-                    stats.currScale *= 0.5;
-                    stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
-                    stats.initialFocus = stats.currFocus;
+                    stats.skala *= 0.5;
+                    stats.kamera = AffineTransformations.zoom(stats.skala, stats.kamera,  stats.mysz.pozycjaLogObecna);
                     stats.addInfo = "Wykryto tapnięcie drugim przyciskiem";
                   });
                 },
@@ -124,13 +128,13 @@ class RootState extends State<Root> {
                   child: Center(
                     child: FutureBuilder<ui.Image>(
                       future: Draw.makeImage(
-                          stats.screenSize.X.toInt(),
-                          stats.screenSize.Y.toInt(),
-                          stats.maxIter,
+                          stats.rozmiarOkna.max.X.toInt(),
+                          stats.rozmiarOkna.max.Y.toInt(),
+                          stats.maxLiczbaIteracji,
                           stats.C,
-                          stats.currentMin,
-                          stats.currentMax,
-                          stats.resolution),
+                          stats.kamera.min,
+                          stats.kamera.max,
+                          stats.rozdzielczosc),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Center(
@@ -168,13 +172,13 @@ class RootState extends State<Root> {
                 SizedBox(height: ui.window.padding.top / ui.window.devicePixelRatio,width:10),
                 FloatingActionButton(
                   onPressed: () => setState(() {
-                    if(stats.showInfo) {
+                    if(stats.pokazInfo) {
                       ikona2 = const Icon(Icons.info_outline);
                     }
                     else {
                       ikona2 = const Icon(Icons.info);
                     }
-                    stats.showInfo =! stats.showInfo;
+                    stats.pokazInfo =! stats.pokazInfo;
                 }),
                 tooltip: stats.infoTooltipButton(),
                 child: ikona2,
@@ -182,8 +186,6 @@ class RootState extends State<Root> {
                 FloatingActionButton(
                   //reset button
                   onPressed: () => setState(() {
-                    stats.currentMin = stats.initialMin;
-                    stats.currentMax = stats.initialMax;
                     stats.reset();
                   }),
                   tooltip: 'Reset',
@@ -192,26 +194,26 @@ class RootState extends State<Root> {
                 FloatingActionButton(
                   //state button
                   onPressed: () => setState(() {
-                    if (stats.zoomLock) {
+                    if (stats.blokadaZmianyC) {
                       ikona = const Icon(Icons.motion_photos_on);
                     } else {
                       ikona = const Icon(Icons.motion_photos_off);
                     }
-                    stats.zoomLock = !stats.zoomLock;
+                    stats.blokadaZmianyC = !stats.blokadaZmianyC;
                   }),
                   tooltip: stats.cTooltipButton(),
                   child: ikona,
                 ),
                 FloatingActionButton(
                   onPressed: () => setState(() {
-                    stats.maxIter += max(log(stats.maxIter).toInt(), 1);
+                    stats.maxLiczbaIteracji += max(log(stats.maxLiczbaIteracji).toInt(), 1);
                   }),
                   tooltip: "Zwiększ ilość iteracji",
                   child: const Icon(Icons.add),
                 ),
                 FloatingActionButton(
                   onPressed: () => setState(() {
-                    stats.maxIter -= log(stats.maxIter).toInt();
+                    stats.maxLiczbaIteracji -= log(stats.maxLiczbaIteracji).toInt();
                   }),
                   tooltip: "Zmniejsz ilość iteracji",
                   child: const Icon(Icons.remove),

@@ -54,3 +54,11 @@ class Punkt {
     return this;
   }
 }
+class Zakres {
+  Punkt min,max;
+  Zakres(this.min, this.max);
+}
+class Mysz {
+  Punkt pozycjaFizyczna,pozycjaLogObecna,pozycjaLogPoprzednia;
+  Mysz(this.pozycjaFizyczna,this.pozycjaLogObecna,this.pozycjaLogPoprzednia);
+}
