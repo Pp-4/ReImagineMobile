@@ -2,34 +2,32 @@ import 'point.dart';
 
 class AffineTransformations {
   static Zakres zoom(double skalaPrzyblizenia, Zakres kamera, Punkt punktPrzyblizenia) {
-    kamera.min -= punktPrzyblizenia;
-    kamera.max -= punktPrzyblizenia;
-    kamera.min /= skalaPrzyblizenia;
-    kamera.max /= skalaPrzyblizenia;
-    kamera.min += punktPrzyblizenia;
-    kamera.max += punktPrzyblizenia;
-    return kamera;
+    Zakres nowaKamera = Zakres(kamera.min - punktPrzyblizenia, kamera.max - punktPrzyblizenia);
+    nowaKamera.min /= skalaPrzyblizenia;
+    nowaKamera.max /= skalaPrzyblizenia;
+    nowaKamera.min += punktPrzyblizenia;
+    nowaKamera.max += punktPrzyblizenia;
+    return nowaKamera;
   }
 
   static (Zakres, Mysz) pan(Zakres kamera, Mysz mysz) {
     Punkt delta = mysz.pozycjaLogObecna - mysz.pozycjaLogPoprzednia;
-    kamera.min -= delta;
-    kamera.max -= delta;
-    mysz.pozycjaLogObecna -= delta;
-    mysz.pozycjaLogPoprzednia -= delta;
-    return (kamera, mysz);
+    Zakres nowaKamera = Zakres(kamera.min - delta, kamera.max - delta);
+    Mysz nowaMysz = Mysz(mysz.pozycjaFizyczna,mysz.pozycjaLogObecna, mysz.pozycjaLogPoprzednia);
+    nowaMysz.pozycjaLogObecna -= delta;
+    nowaMysz.pozycjaLogPoprzednia -= delta;
+    return (nowaKamera, nowaMysz);
   }
 
   static Zakres ratio(Zakres kamera, Punkt rozmiarOdniesienia) {
     Punkt proporcja = ratio2(rozmiarOdniesienia) / ratio2(kamera.min - kamera.max);
     Punkt srodek = (kamera.min + kamera.max) / 2;
-    kamera.min -= srodek;
-    kamera.max -= srodek;
-    kamera.min /= proporcja;
-    kamera.max /= proporcja;
-    kamera.min += srodek;
-    kamera.max += srodek;
-    return kamera;
+    Zakres nowaKamera = Zakres(kamera.min-srodek, kamera.max-srodek);
+    nowaKamera.min /= proporcja;
+    nowaKamera.max /= proporcja;
+    nowaKamera.min += srodek;
+    nowaKamera.max += srodek;
+    return nowaKamera;
   }
 
   static Punkt ratio2(Punkt a) {

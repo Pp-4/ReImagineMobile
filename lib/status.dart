@@ -11,6 +11,7 @@ class Status {
   final int maxLiczbaIteracjiPocz;
   double skalaPocz = 1.0, tempoSkali = 1.0, skala = 1.0;
   double rozdzielczosc = 1; //doesnt work right now , dont change
+  double sl1 = 0.01,sl2 = 0.02,sl3 = 0.04;
   Status(
     this.blokadaZmianyC,
     this.dragLock,
@@ -48,6 +49,7 @@ class Status {
     skala = 1.0;
     kamera = kameraPocz;
     mysz = Mysz(Punkt(0,0),Punkt(0,0),Punkt(0,0));
+    addInfo = "";
   }
 
   cTooltipButton() => blokadaZmianyC ? "Włącz zmianę C" : "Wyłącz zmianę C";

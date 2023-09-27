@@ -40,13 +40,11 @@ class RootState extends State<Root> {
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: Builder(builder: (BuildContext context) {
 
-
         stats.rozmiarOkna.max = Punkt.size(MediaQuery.of(context).size);
-        //final screenRatio = AffineTransformations.ratio2(stats.rozmiarOkna);
-        stats.kamera = AffineTransformations.ratio(stats.kameraPocz, stats.rozmiarOkna.min - stats.rozmiarOkna.max);
-        stats.addInfo =  stats.rozmiarOkna.max.toString();
+        //stats.addInfo = AffineTransformations.ratio2(stats.rozmiarOkna.max).toString();
+        //stats.kamera = AffineTransformations.ratio(stats.kameraPocz, stats.rozmiarOkna.min - stats.rozmiarOkna.max);
+        //stats.kamera = AffineTransformations.zoom(stats.skala,stats.kamera,stats.mysz.pozycjaLogObecna);
         //stats.kameraMax = ((stats.kameraMaxPocz * screenRatio-stats.fokus) / stats.skala) + stats.fokus;
-
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -110,16 +108,16 @@ class RootState extends State<Root> {
                 onTap: () {
                   setState(() {
                     stats.skala *= 2;
-                    stats.kamera = AffineTransformations.zoom(stats.skala, stats.kamera, stats.mysz.pozycjaLogObecna);
+                    stats.kamera = AffineTransformations.zoom(2, stats.kamera, stats.mysz.pozycjaLogObecna);
                     stats.addInfo = "Wykryto tapnięcie";
                   });
                 },
                 onSecondaryTap: () {
                   setState(() {
                     stats.skala *= 0.5;
-                    stats.kamera = AffineTransformations.zoom(stats.skala, stats.kamera,  stats.mysz.pozycjaLogObecna);
+                    stats.kamera = AffineTransformations.zoom(0.5, stats.kamera,  stats.mysz.pozycjaLogObecna);
                     stats.addInfo = "Wykryto tapnięcie drugim przyciskiem";
-                  });
+                  }); 
                 },
                 child: Container(
                   //this widget contains rendered image
@@ -132,9 +130,10 @@ class RootState extends State<Root> {
                           stats.rozmiarOkna.max.Y.toInt(),
                           stats.maxLiczbaIteracji,
                           stats.C,
-                          stats.kamera.min,
-                          stats.kamera.max,
-                          stats.rozdzielczosc),
+                          stats.kamera.min*AffineTransformations.ratio2(stats.rozmiarOkna.max)/2,
+                          stats.kamera.max*AffineTransformations.ratio2(stats.rozmiarOkna.max)/2,
+                          stats.rozdzielczosc,
+                          (stats.sl1,stats.sl2,stats.sl3)),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Center(

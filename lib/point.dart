@@ -57,6 +57,8 @@ class Punkt {
 class Zakres {
   Punkt min,max;
   Zakres(this.min, this.max);
+  @override
+  String toString() => '${min.toString()} ${max.toString()}';
 }
 class Mysz {
   Punkt pozycjaFizyczna,pozycjaLogObecna,pozycjaLogPoprzednia;
