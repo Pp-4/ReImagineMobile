@@ -1,16 +1,13 @@
 # ReImagine Mobile
 
-Mobile version of my app for drawing fractal sets
-
-## Some info
-
-This project is a mobile version of my previous app for drawing fractals.
-Work in Progress.
+Mobile app for rendering fractals.
 Supported platforms :
  - Android, Windows
- 
-Future plans : 
- - more settings
- - custom sets
- - code optimisation
- - image/animation export
+
+## New version info
+
+- 4 predefined sets
+- new panel for changing color palette
+- code refactorisation
+- camera movements update (2 finger panning/zooming)
+- automatic/manual iteration increase/decrease
