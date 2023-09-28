@@ -8,9 +8,10 @@ class Status {
   Zakres kamera,kameraPocz,rozmiarOkna;
   Mysz mysz;
   int maxLiczbaIteracji;
+  int modLiczbyIteracji = 50;
   final int maxLiczbaIteracjiPocz;
-  double scaleInitial = 1.0, prevScaleFactor = 1.0, scaleTotal = 1.0,currScaleFactor = 1.0;
-  double rozdzielczosc = 1; //doesnt work right now , dont change
+  double prevScaleFactor = 1.0, scaleTotal = 1.0,currScaleFactor = 1.0,rozdzielczosc = 1.0;
+  bool scaleChange = false;
   static Kolor kolory = Kolor(0.02, 0.04, 0.01, 0);
   Status(
     this.blokadaZmianyC,
@@ -34,7 +35,7 @@ class Status {
     outputMessage += "Współrzedne C $C\n";
     outputMessage += "Pozycja ${(kamera.min+kamera.max)/2}\n";
     outputMessage += "Przybliżenie ${scaleTotal}x \n";
-    outputMessage += "Liczba iteracji: $maxLiczbaIteracji\n";
+    outputMessage += "Liczba iteracji: ${maxLiczbaIteracji+modLiczbyIteracji}\n";
     outputMessage += "Min: ${kamera.min}\nMax: ${kamera.max}\n";
     //outputMessage += "initialScale $initialScale\nscaleFactor $scaleFactor\ncurrentScale $currentScale\n";
     //outputMessage += 'Rozmiar paska: ${window.padding.top}\n';
@@ -44,8 +45,8 @@ class Status {
   }
   reset() {
     C = _poczC;
-    maxLiczbaIteracji = maxLiczbaIteracjiPocz;
-    scaleInitial = 1.0;
+    maxLiczbaIteracji = 50;
+    modLiczbyIteracji = 50;
     scaleTotal = 1.0;
     kamera = kameraPocz;
     mysz = Mysz(Punkt(0,0),Punkt(0,0),Punkt(0,0));

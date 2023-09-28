@@ -4,7 +4,7 @@ import 'point.dart';
 
 class CalculateSet {
   //Magic happens here
-
+  static double escapeRatio = 0;
   Punkt C = Punkt(0, 0), min = Punkt(-2, -2), max = Punkt(2, 2);
   int resX = 0, resY = 0;
   int typRowniania =
@@ -37,6 +37,7 @@ class CalculateSet {
           depthMatrix[i][j] = _helpCalc(Z, C, iterations);
         }
       }
+      escapeRatio = escapeRatio/(resX*resY);
       return depthMatrix;
     } else {
       for (int i = 0; i < x; i++) {
@@ -46,6 +47,7 @@ class CalculateSet {
           depthMatrix[i][j] = _helpCalc(Z, C, iterations);
         }
       }
+      escapeRatio = escapeRatio/(resX*resY);
       return depthMatrix;
     }
   }
@@ -60,6 +62,7 @@ class CalculateSet {
         z = _nextPointB(z, c);
       }
     }
+    escapeRatio++;
     return -1.0;
   }
 

@@ -9,6 +9,7 @@ class OptionsBar extends StatefulWidget {
   State<OptionsBar> createState() => _OptionsBarState();
   Kolor kolor = Kolor(0, 0, 0, 0);
   MyDropdown dropdown = MyDropdown(title:"Wybór 1",list: const ["Julia","Mandelbrott","Płonący statek","Płonący statek - Julia"]);
+
   var update = (){};
 }
 
@@ -17,7 +18,9 @@ class _OptionsBarState extends State<OptionsBar> {
 
   @override
   Widget build(BuildContext context) {
-
+    initState(){
+      widget.dropdown.kolor = widget.kolor;
+    }
     getSelectedSet(){
       return widget.dropdown.currentValue;
     }

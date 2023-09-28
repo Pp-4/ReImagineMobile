@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-
+import 'package:reimagine_mobile/point.dart';
 class MyDropdown extends StatefulWidget {
   MyDropdown({Key? key, required this.title, required this.list})
       : super(key: key);
-
+  var update = (){};
   String title;
   List<String> list;
   late String currentValue;
-
+  Kolor kolor = Kolor(0, 0, 0, 0);
   @override
   State<MyDropdown> createState() => _MyDropdownState();
 
@@ -31,13 +31,26 @@ class _MyDropdownState extends State<MyDropdown> {
         crossAxisAlignment: CrossAxisAlignment.start,
           children: [
         Text(widget.title),
-        SizedBox(height: 5,),
+        const SizedBox(height: 5,),
         DropdownMenu<String>(
           width: 120,
-          initialSelection: widget.list.first,
+          initialSelection: widget.list[widget.kolor.rownanie],
           onSelected: (String? value) {
             setState(() {
               widget.currentValue = value!;
+              switch(widget.currentValue){
+                case 'Julia':
+                  widget.kolor.rownanie = 0;
+                case 'Mandelbrott':
+                  widget.kolor.rownanie = 1;
+                case 'Płonący statek - Julia':
+                  widget.kolor.rownanie = 2;
+                case 'Płonący statek':
+                  widget.kolor.rownanie = 3;
+                default:
+                  widget.kolor.rownanie = 0;
+              }
+              widget.update();
             });
           },
           dropdownMenuEntries:
