@@ -11,7 +11,7 @@ class AffineTransformations {
   }
 
   static (Zakres, Mysz) pan(Zakres kamera, Mysz mysz) {
-    Punkt delta = mysz.pozycjaLogObecna - mysz.pozycjaLogPoprzednia;
+    Punkt delta =  mysz.pozycjaLogObecna - mysz.pozycjaLogPoprzednia;
     Zakres nowaKamera = Zakres(kamera.min - delta, kamera.max - delta);
     Mysz nowaMysz = Mysz(mysz.pozycjaFizyczna,mysz.pozycjaLogObecna, mysz.pozycjaLogPoprzednia);
     nowaMysz.pozycjaLogObecna -= delta;
@@ -53,7 +53,7 @@ class AffineTransformations {
   //converts x,y point form (min1,max1) to (min2,max2) where min1 ,max1 are source 
   // range , and min2,max are destination range example : point(1,0) on (-1,-1) (1,1) range
   // will be scalled to (2,1) on (0,0)(2,2)
-    pozycja.Y = (pozycja.Y - fizyczny.max.Y).abs();
+    //pozycja.Y = (pozycja.Y - fizyczny.max.Y).abs();
     return _denormalizuj(_normalizuj(pozycja, fizyczny), logiczny);
   }
 }

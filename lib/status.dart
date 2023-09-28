@@ -9,10 +9,9 @@ class Status {
   Mysz mysz;
   int maxLiczbaIteracji;
   final int maxLiczbaIteracjiPocz;
-  double skalaPocz = 1.0, tempoSkali = 1.0, skala = 1.0;
+  double scaleInitial = 1.0, prevScaleFactor = 1.0, scaleTotal = 1.0,currScaleFactor = 1.0;
   double rozdzielczosc = 1; //doesnt work right now , dont change
-  static Kolor kolory = Kolor(0.02,0.04, 0.08);
-  static int rownanie = 0;
+  static Kolor kolory = Kolor(0.02, 0.04, 0.01, 0);
   Status(
     this.blokadaZmianyC,
     this.dragLock,
@@ -34,7 +33,7 @@ class Status {
     outputMessage += "Zmiana C ${blokadaZmianyC ? "nieaktywna" : "aktywna"} \n";
     outputMessage += "Współrzedne C $C\n";
     outputMessage += "Pozycja ${(kamera.min+kamera.max)/2}\n";
-    outputMessage += "Przybliżenie ${skala}x \n";
+    outputMessage += "Przybliżenie ${scaleTotal}x \n";
     outputMessage += "Liczba iteracji: $maxLiczbaIteracji\n";
     outputMessage += "Min: ${kamera.min}\nMax: ${kamera.max}\n";
     //outputMessage += "initialScale $initialScale\nscaleFactor $scaleFactor\ncurrentScale $currentScale\n";
@@ -46,8 +45,8 @@ class Status {
   reset() {
     C = _poczC;
     maxLiczbaIteracji = maxLiczbaIteracjiPocz;
-    skalaPocz = 1.0;
-    skala = 1.0;
+    scaleInitial = 1.0;
+    scaleTotal = 1.0;
     kamera = kameraPocz;
     mysz = Mysz(Punkt(0,0),Punkt(0,0),Punkt(0,0));
     addInfo = "";

@@ -33,7 +33,7 @@ class _MyDropdownState extends State<MyDropdown> {
         Text(widget.title),
         SizedBox(height: 5,),
         DropdownMenu<String>(
-          width: 250,
+          width: 120,
           initialSelection: widget.list.first,
           onSelected: (String? value) {
             setState(() {

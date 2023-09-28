@@ -1,6 +1,6 @@
 import "dart:ui";
 import "dart:math" as math;
-
+import "aff_trans.dart";
 class Punkt {
   //object for handling pairs of coords with basic operator overloads
   double X, Y;
@@ -63,8 +63,17 @@ class Zakres {
 class Mysz {
   Punkt pozycjaFizyczna,pozycjaLogObecna,pozycjaLogPoprzednia;
   Mysz(this.pozycjaFizyczna,this.pozycjaLogObecna,this.pozycjaLogPoprzednia);
+  void aktualizuj(Offset pozycjaFizycznaMyszki,Zakres fizyczny,Zakres logiczny,{bool odwracanieOsiY = false}){
+    pozycjaFizyczna = Punkt.offset(pozycjaFizycznaMyszki);
+    if(odwracanieOsiY) {
+      pozycjaFizyczna.Y = (pozycjaFizyczna.Y - fizyczny.max.Y).abs();
+    }
+    pozycjaLogPoprzednia = pozycjaLogObecna;
+    pozycjaLogObecna = AffineTransformations.positionMap(pozycjaFizyczna, fizyczny, logiczny);
+  }
 }
 class Kolor {
   double kolor1,kolor2,kolor3;
-  Kolor(this.kolor1,this.kolor2,this.kolor3);
+  int rownanie;
+  Kolor(this.kolor1,this.kolor2,this.kolor3,this.rownanie);
 }

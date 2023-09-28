@@ -17,15 +17,21 @@ class Root extends StatefulWidget {
 }
 
 class RootState extends State<Root> {
-  final stats = Status(false, false, Punkt(0.3305, -0.041),100, Zakres(Punkt(0,0), Punkt(0,0)), Zakres(Punkt(-1.5, -1.5), Punkt(1.5, 1.5)));
-      /*some C's to test :
+  final stats = Status(
+      false,
+      false,
+      Punkt(0.3305, -0.041),
+      100,
+      Zakres(Punkt(0, 0), Punkt(0, 0)),
+      Zakres(Punkt(-1.5, -1.5), Punkt(1.5, 1.5)));
+  /*some C's to test :
       Punkt(0.259184, 0.001126),500
       Punkt(0.3305, -0.041),100
       */
   Icon ikona = const Icon(Icons.motion_photos_on);
   Icon ikona2 = const Icon(Icons.info);
   OptionsBar optionsbar = OptionsBar();
-  AppBar _buildAppBar(){
+  AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -34,12 +40,17 @@ class RootState extends State<Root> {
 
   @override
   Widget build(BuildContext context) {
+    update() {
+      setState(() {});
+    }
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ReImagine Mobile',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: Builder(builder: (BuildContext context) {
         optionsbar.kolor = Status.kolory;
+        optionsbar.update = update;
         stats.rozmiarOkna.max = Punkt.size(MediaQuery.of(context).size);
         //stats.addInfo = AffineTransformations.ratio2(stats.rozmiarOkna.max).toString();
         //stats.kamera = AffineTransformations.ratio(stats.kameraPocz, stats.rozmiarOkna.min - stats.rozmiarOkna.max);
@@ -48,76 +59,58 @@ class RootState extends State<Root> {
 
         return Scaffold(
           extendBodyBehindAppBar: true,
-          appBar:_buildAppBar(),
-
+          appBar: _buildAppBar(),
           drawer: optionsbar,
           body: Stack(
             children: [
               GestureDetector(
                 //this widget provides interaction with rendering function
-                onScaleStart: (details) {//wykrycie zoomowania palcami , ustalenie pozycji i skali
-                  stats.skalaPocz = stats.skala;
-                  stats.mysz.pozycjaFizyczna = Punkt.offset(details.focalPoint);
-                  stats.mysz.pozycjaLogPoprzednia = stats.mysz.pozycjaLogObecna;
-                  stats.mysz.pozycjaLogObecna = AffineTransformations.positionMap(stats.mysz.pozycjaFizyczna, stats.rozmiarOkna, stats.kamera);
+                onScaleStart: (details) {
+                  //wykrycie zoomowania palcami , reset skali
+                  stats.currScaleFactor = 1;
+                  stats.prevScaleFactor = 1;
+                  stats.mysz.aktualizuj(details.focalPoint,stats.rozmiarOkna, stats.kamera);
                 },
                 onScaleUpdate: (details) {
-                  setState(() {
-                    stats.addInfo = "Wykryto zoom, liczba palców : ${details.pointerCount}";
-                    //zooming
-                    //update temporary zoom scale
-                    if (details.pointerCount == 2) {//
-                      stats.tempoSkali = details.scale * stats.skalaPocz;
-                      stats.skala = stats.tempoSkali;
-                      stats.mysz.pozycjaFizyczna = Punkt.offset(details.focalPoint);
-                      stats.mysz.pozycjaLogPoprzednia = stats.mysz.pozycjaLogObecna;
-                      stats.mysz.pozycjaLogObecna = AffineTransformations.positionMap(stats.mysz.pozycjaFizyczna, stats.rozmiarOkna, stats.kamera);
-                      stats.kamera = AffineTransformations.zoom(stats.skala, stats.kamera, stats.mysz.pozycjaLogObecna);
-                    }
-                    if (details.pointerCount == 1) {
-                    if (!stats.blokadaZmianyC) {// update C if zoomLock is false
-                      stats.C = AffineTransformations.positionMap(Punkt.offset(details.focalPoint),stats.rozmiarOkna,stats.kamera);
-                    }
-                    else {
-                      (Zakres,Mysz) wynik = AffineTransformations.pan(stats.kamera, stats.mysz);
+                  setState(() {//zooming
+                    stats.addInfo = "Wykryto zoom, fokus : ${details.focalPoint}";
+                    stats.mysz.aktualizuj(details.focalPoint,stats.rozmiarOkna, stats.kamera);
+                    stats.addInfo += "\n ${stats.mysz.pozycjaLogObecna}";
+                    stats.prevScaleFactor = stats.currScaleFactor;
+                    stats.currScaleFactor = details.scale;
+                    double tempScale = stats.currScaleFactor/stats.prevScaleFactor;
+                    stats.scaleTotal *= tempScale;
+                    if (!stats.blokadaZmianyC && details.pointerCount == 1) {//zmiana c
+                      stats.C = AffineTransformations.positionMap(Punkt.offset(details.focalPoint), stats.rozmiarOkna, stats.kamera);
+                    } else { //przesuwanie
+                      (Zakres, Mysz) wynik = AffineTransformations.pan(stats.kamera, stats.mysz);
                       stats.kamera = wynik.$1;
                       stats.mysz = wynik.$2;
                     }
-                    }
-
-                    //panning
-                    //rate of panning is influenced by zoom
-                  });
-                },
-                onScaleEnd: (details) {
-                  setState(() {
-                    stats.addInfo = "";
-                    if(stats.mysz.pozycjaFizyczna != Punkt(0,0)){
-                      //print("zoom w punkcie $zoomPointInPixels");
-                    //stats.currFocus = Conv.positionMap(Punkt(0,0), stats.screenSize, stats.currentMin, stats.currentMax, stats.initialFocus);
-                    //stats.initialFocus = stats.currFocus;
-                    }
+                    stats.kamera = AffineTransformations.zoom(tempScale, stats.kamera, stats.mysz.pozycjaLogObecna);
                   });
                 },
                 onTapDown: (details) {
-                  stats.mysz.pozycjaFizyczna = Punkt.offset(details.globalPosition);
-                  stats.mysz.pozycjaFizyczna.Y = (stats.mysz.pozycjaFizyczna.Y-stats.rozmiarOkna.max.Y).abs();
-                  stats.mysz.pozycjaLogPoprzednia = stats.mysz.pozycjaLogObecna;
-                  stats.mysz.pozycjaLogObecna = AffineTransformations.positionMap(stats.mysz.pozycjaFizyczna, stats.rozmiarOkna, stats.kamera);
+                  stats.mysz.aktualizuj(details.globalPosition,stats.rozmiarOkna, stats.kamera);
+                  stats.addInfo = "${details.globalPosition}";
+                },
+                onSecondaryTapDown: (details) {
+                  stats.mysz.aktualizuj(details.globalPosition,stats.rozmiarOkna, stats.kamera);
+                  stats.addInfo = "${details.globalPosition}";
                 },
                 onTap: () {
                   setState(() {
-                    stats.skala *= 2;
+                    stats.scaleTotal *= 2;
                     stats.kamera = AffineTransformations.zoom(2, stats.kamera, stats.mysz.pozycjaLogObecna);
-                    stats.addInfo = "Wykryto tapnięcie";
+                    stats.addInfo += "\n ${stats.mysz.pozycjaLogObecna}";
                   });
                 },
                 onSecondaryTap: () {
                   setState(() {
-                    stats.skala *= 0.5;
-                    stats.kamera = AffineTransformations.zoom(0.5, stats.kamera,  stats.mysz.pozycjaLogObecna);
+                    stats.scaleTotal *= 0.5;
+                    stats.kamera = AffineTransformations.zoom(0.5, stats.kamera, stats.mysz.pozycjaLogObecna);
                     stats.addInfo = "Wykryto tapnięcie drugim przyciskiem";
-                  }); 
+                  });
                 },
                 child: Container(
                   //this widget contains rendered image
@@ -130,11 +123,16 @@ class RootState extends State<Root> {
                           stats.rozmiarOkna.max.Y.toInt(),
                           stats.maxLiczbaIteracji,
                           stats.C,
-                          stats.kamera.min*AffineTransformations.ratio2(stats.rozmiarOkna.max)/2,
-                          stats.kamera.max*AffineTransformations.ratio2(stats.rozmiarOkna.max)/2,
+                          stats.kamera.min *
+                              AffineTransformations.ratio2(
+                                  stats.rozmiarOkna.max) /
+                              2,
+                          stats.kamera.max *
+                              AffineTransformations.ratio2(
+                                  stats.rozmiarOkna.max) /
+                              2,
                           stats.rozdzielczosc,
-                          Status.kolory,
-                          Status.rownanie),
+                          Status.kolory),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Center(
@@ -153,15 +151,15 @@ class RootState extends State<Root> {
                 ),
               ),
               IgnorePointer(
-                child: Container(
-                  padding: EdgeInsets.only(
-                      top: ui.window.padding.top / ui.window.devicePixelRatio),
-                  alignment: Alignment.topLeft,
-                  child: Text(stats.toString(),
+                  child: Container(
+                padding: EdgeInsets.only(
+                    top: ui.window.padding.top / ui.window.devicePixelRatio),
+                alignment: Alignment.topLeft,
+                child: Text(
+                  stats.toString(),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                   ),
-                    
                 ),
               ))
             ],
@@ -169,19 +167,20 @@ class RootState extends State<Root> {
           floatingActionButton: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                SizedBox(height: ui.window.padding.top / ui.window.devicePixelRatio,width:10),
+                SizedBox(
+                    height: ui.window.padding.top / ui.window.devicePixelRatio,
+                    width: 10),
                 FloatingActionButton(
                   onPressed: () => setState(() {
-                    if(stats.pokazInfo) {
+                    if (stats.pokazInfo) {
                       ikona2 = const Icon(Icons.info_outline);
-                    }
-                    else {
+                    } else {
                       ikona2 = const Icon(Icons.info);
                     }
-                    stats.pokazInfo =! stats.pokazInfo;
-                }),
-                tooltip: stats.infoTooltipButton(),
-                child: ikona2,
+                    stats.pokazInfo = !stats.pokazInfo;
+                  }),
+                  tooltip: stats.infoTooltipButton(),
+                  child: ikona2,
                 ),
                 FloatingActionButton(
                   //reset button
@@ -206,14 +205,16 @@ class RootState extends State<Root> {
                 ),
                 FloatingActionButton(
                   onPressed: () => setState(() {
-                    stats.maxLiczbaIteracji += max(log(stats.maxLiczbaIteracji).toInt(), 1);
+                    stats.maxLiczbaIteracji +=
+                        max(log(stats.maxLiczbaIteracji).toInt(), 1);
                   }),
                   tooltip: "Zwiększ ilość iteracji",
                   child: const Icon(Icons.add),
                 ),
                 FloatingActionButton(
                   onPressed: () => setState(() {
-                    stats.maxLiczbaIteracji -= log(stats.maxLiczbaIteracji).toInt();
+                    stats.maxLiczbaIteracji -=
+                        log(stats.maxLiczbaIteracji).toInt();
                   }),
                   tooltip: "Zmniejsz ilość iteracji",
                   child: const Icon(Icons.remove),
